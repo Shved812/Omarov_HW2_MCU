@@ -1,0 +1,113 @@
+/*
+ * USART.c
+ *
+ *  Created on: 4 мая 2022 г.
+ *      Author: hard_
+ */
+#include "USART.h"
+
+
+
+
+void init_gpio_as_AF_for_USART1(){ //PA9_TX PA10_RX
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+	GPIOA->MODER |= GPIO_MODER_MODER9_1;
+	GPIOA->MODER |= GPIO_MODER_MODER10_1;
+
+//	GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR9;
+//	GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR10;
+
+//	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR9_1;
+//	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR10_1;
+
+	GPIOA->AFR[1] |= (GPIO_AF_USART1<<(1*4));
+	GPIOA->AFR[1] |= (GPIO_AF_USART1<<(2*4));
+}
+
+void init_gpio_as_AF_for_USART6(){ //PC6_TX PC7_RX
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
+	GPIOC->MODER |= GPIO_MODER_MODER6_1;
+	GPIOC->MODER |= GPIO_MODER_MODER7_1;
+
+	GPIOC->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR6;
+	GPIOC->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR7;
+
+	GPIOC->PUPDR |= GPIO_PUPDR_PUPDR6_0;
+	GPIOC->PUPDR |= GPIO_PUPDR_PUPDR7_0;
+
+	GPIOC->AFR[0] |= (GPIO_AF_USART6<<(6*4));
+	GPIOC->AFR[0] |= (GPIO_AF_USART6<<(7*4));
+}
+/*
+void init_gpio_as_AF_for_USART6(){ //PG14_TX PG9_RX
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN;
+	GPIOG->MODER |= GPIO_MODER_MODER9_1 | GPIO_MODER_MODER14_1;
+	GPIOG->AFR[1] |= (GPIO_AF_USART6<<2)|(GPIO_AF_USART6<<6);
+}
+*/
+void init_USART6(){
+	init_gpio_as_AF_for_USART6();
+	RCC->APB2ENR |= RCC_APB2ENR_USART6EN;
+	USART6->CR1 |= USART_CR1_OVER8;
+	USART6->CR1 |= USART_CR1_RE;
+	USART6->CR1 |= USART_CR1_TE;
+	//USART6->CR2 &= ~USART_CR2_STOP;
+	//USART6->CR1 &= ~USART_CR1_M;
+
+	USART6->CR1 |= USART_CR1_RXNEIE;
+	USART6->CR1 |= USART_CR1_TXEIE;
+	USART6->BRR = SystemCoreClock / 115200;
+
+	//NVIC_SetPriority(USART6_IRQn, 2);
+	//NVIC_EnableIRQ(USART6_IRQn);
+
+	USART6->CR1 |= USART_CR1_UE;
+
+}
+
+void init_USART1(){
+	init_gpio_as_AF_for_USART1();
+	RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+	USART1->CR1 |= USART_CR1_OVER8;
+	USART1->CR1 |= USART_CR1_RE;
+	//USART1->CR1 |= USART_CR1_TE;
+	USART1->CR1 |= USART_CR1_RXNEIE;
+	//USART1->CR1 |= USART_CR1_TXEIE;
+	USART1->BRR |= (SystemCoreClock / 115200);//<<4;//(45<<4)|0x1;//(((0x27)));//9600;//69.44//SystemCoreClock / 115200;
+
+	NVIC_SetPriority(USART1_IRQn, 4);
+	NVIC_EnableIRQ(USART1_IRQn);
+
+	USART1->CR1 |= USART_CR1_UE;
+}
+
+
+uint8_t put_char_usart1(uint8_t byte) {
+	if ((USART1->SR & USART_SR_TXE) == USART_SR_TXE)
+	{
+		USART1->DR = byte;
+		return 1;
+	}
+	return 0;
+}
+
+
+void get_char_usart1(uint16_t *D){
+	while((USART1->SR & USART_SR_RXNE) != USART_SR_RXNE);
+	*D=USART1->DR;
+}
+
+uint8_t put_char_usart6(uint8_t byte) {
+	if ((USART6->SR & USART_SR_TXE) == USART_SR_TXE)
+	{
+		USART6->DR = byte;
+		return 1;
+	}
+	return 0;
+}
+
+
+void get_char_usart6(uint16_t *D){
+	while((USART6->SR & USART_SR_RXNE) != USART_SR_RXNE);
+	*D=USART6->DR;
+}
