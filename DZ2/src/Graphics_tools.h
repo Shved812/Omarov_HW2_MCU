@@ -16,6 +16,9 @@
 #include "Image.h"
 #include "LTDC.h"
 
+#define	LCD_SAVE_FRAME_BUF		LCD_FRAME_BUFFER+2*LCD_FRAME_OFFSET
+#define LCD_TRANSFER_FRAME_BUF	LCD_FRAME_BUFFER+3*LCD_FRAME_OFFSET
+
 void Graphic_DrawImage(Image *img, int16_t xpos, int16_t ypos);
 
 void Graphic_DrawFrame(int16_t color, int16_t x_begin, int16_t y_begin, int16_t x_end, int16_t y_end);
@@ -39,5 +42,13 @@ void Graphic_FlipImage();
 void Graphic_FlipSavedImage();
 
 void Graphic_FlipSquareImage();
+
+uint32_t Graphic_Save_Transfer_img(uint16_t pixel, uint32_t index);
+
+uint32_t Graphic_Get_Tranfer_img(uint16_t* pixel, uint32_t index);
+
+uint32_t Graphic_Load2screen(uint16_t pixel, uint32_t index);
+
+uint32_t Graphic_Get4screen(uint16_t* pixel, uint32_t index);
 
 #endif /* GRAPHICS_TOOLS_H_ */

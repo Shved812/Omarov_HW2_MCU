@@ -20,10 +20,10 @@ void Led4_on(){
 	GPIOG->BSRRL = GPIO_BSRR_BS_14;
 }
 void Led3_off(){
-	GPIOG->BSRRH = GPIO_BSRR_BR_13;
+	GPIOG->BSRRH = GPIO_BSRR_BS_13;
 }
 void Led4_off(){
-	GPIOG->BSRRH = GPIO_BSRR_BR_14;
+	GPIOG->BSRRH = GPIO_BSRR_BS_14;
 }
 void Blink_Led3(){
 	GPIOG->ODR ^= GPIO_ODR_ODR_13;

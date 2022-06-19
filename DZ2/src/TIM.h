@@ -29,4 +29,15 @@ void TIM7_ARR(uint16_t Arr);
 void TIM1_PSC(uint16_t Psc);
 void TIM6_PSC(uint16_t Psc);
 void TIM7_PSC(uint16_t Psc);
+
+void init_TIM2();
+void init_TIM3();
+void init_TIM4();
+//void init_TIMx(TIM_TypeDef* TIMx);
+void TIM2_cmd(uint8_t STATE);
+void TIMx_cmd(TIM_TypeDef* TIMx,uint8_t STATE);
+void TIM2_ARR(uint16_t Arr);
+void TIMx_ARR(TIM_TypeDef* TIMx, uint16_t Arr);
+void TIM2_PSC(uint16_t Psc);
+void TIMx_PSC(TIM_TypeDef* TIMx, uint16_t Psc);
 #endif /* TIM_H_ */

@@ -100,7 +100,8 @@ uint16_t Graphic_ConvertColor2BM(uint16_t  Color){
 void Graphic_ConvertImage2BW(Image *img, int16_t xpos, int16_t ypos)
 {
 	  uint16_t xn,yn;
-	  const uint16_t *pixel;
+	  //const uint16_t *pixel;
+	  uint16_t *pixel;
 	  uint16_t color;
 
 	  pixel=&img->table[0];
@@ -142,13 +143,13 @@ void Graphic_ConvertCurrentSquareImage2BW()
 void Graphic_DrawSavedImage(){
 	uint32_t index = 0;
 	for (index = 0x00; index < LCD_FRAME_OFFSET; index+=2)
-		*(uint16_t*)(LCD_CurrentFrameBuffer+index)=*(uint16_t*)(LCD_FRAME_BUFFER+2*LCD_FRAME_OFFSET+index);
+		*(uint16_t*)(LCD_CurrentFrameBuffer+index)=*(uint16_t*)(LCD_SAVE_FRAME_BUF+index);
 }
 
 void Graphic_SaveImage(){
 	uint32_t index = 0;
 	for (index = 0x00; index < LCD_FRAME_OFFSET; index+=2)
-		*(uint16_t*)(LCD_FRAME_BUFFER+2*LCD_FRAME_OFFSET+index)=*(uint16_t*)(LCD_CurrentFrameBuffer+index);
+		*(uint16_t*)(LCD_SAVE_FRAME_BUF+index)=*(uint16_t*)(LCD_CurrentFrameBuffer+index);
 }
 
 void Graphic_FlipImage(){
@@ -176,15 +177,15 @@ void Graphic_FlipSavedImage(){
 		for(uint32_t i=0;i<LCD_MAXX/2;i++)
 		{
 
-			a = *(uint16_t*)(LCD_FRAME_BUFFER+2*LCD_FRAME_OFFSET + 2*(i+j*LCD_MAXX));
-			b = *(uint16_t*)(LCD_FRAME_BUFFER+2*LCD_FRAME_OFFSET + 2*((i+40)*LCD_MAXX-(j-40)+LCD_MAXX-1));
-			c = *(uint16_t*)(LCD_FRAME_BUFFER+2*LCD_FRAME_OFFSET + 2*(-(j-40-40)*LCD_MAXX-i+LCD_MAXX*LCD_MAXX-1));
-			d = *(uint16_t*)(LCD_FRAME_BUFFER+2*LCD_FRAME_OFFSET + 2*(-(i-40)*LCD_MAXX+(j-40)+LCD_MAXX*(LCD_MAXX-1)));
+			a = *(uint16_t*)(LCD_SAVE_FRAME_BUF + 2*(i+j*LCD_MAXX));
+			b = *(uint16_t*)(LCD_SAVE_FRAME_BUF + 2*((i+40)*LCD_MAXX-(j-40)+LCD_MAXX-1));
+			c = *(uint16_t*)(LCD_SAVE_FRAME_BUF + 2*(-(j-40-40)*LCD_MAXX-i+LCD_MAXX*LCD_MAXX-1));
+			d = *(uint16_t*)(LCD_SAVE_FRAME_BUF + 2*(-(i-40)*LCD_MAXX+(j-40)+LCD_MAXX*(LCD_MAXX-1)));
 
-			*(uint16_t*)(LCD_FRAME_BUFFER+2*LCD_FRAME_OFFSET + 2*(i+j*LCD_MAXX)) 								  = d;
-			*(uint16_t*)(LCD_FRAME_BUFFER+2*LCD_FRAME_OFFSET + 2*((i+40)*LCD_MAXX-(j-40)+LCD_MAXX-1)) 			  = a;
-			*(uint16_t*)(LCD_FRAME_BUFFER+2*LCD_FRAME_OFFSET + 2*(-(j-40-40)*LCD_MAXX-i+LCD_MAXX*LCD_MAXX-1))	  = b;
-			*(uint16_t*)(LCD_FRAME_BUFFER+2*LCD_FRAME_OFFSET + 2*(-(i-40)*LCD_MAXX+(j-40)+LCD_MAXX*(LCD_MAXX-1))) = c;
+			*(uint16_t*)(LCD_SAVE_FRAME_BUF + 2*(i+j*LCD_MAXX)) 								  = d;
+			*(uint16_t*)(LCD_SAVE_FRAME_BUF + 2*((i+40)*LCD_MAXX-(j-40)+LCD_MAXX-1)) 			  = a;
+			*(uint16_t*)(LCD_SAVE_FRAME_BUF + 2*(-(j-40-40)*LCD_MAXX-i+LCD_MAXX*LCD_MAXX-1))	  = b;
+			*(uint16_t*)(LCD_SAVE_FRAME_BUF + 2*(-(i-40)*LCD_MAXX+(j-40)+LCD_MAXX*(LCD_MAXX-1))) = c;
 
 		}
 }
@@ -236,4 +237,45 @@ void Graphic_FlipSquareImage(){
 			*(uint16_t*)(LCD_CurrentFrameBuffer + 2*(-(i-40+1)*LCD_MAXX+(j-40+1)+LCD_MAXX*(LCD_MAXX-1))) = c[3];
 
 		}
+}
+
+
+uint32_t Graphic_Save_Transfer_img(uint16_t pixel, uint32_t index){
+	if( index > 320*240-1 )
+		return 0;
+	*(uint16_t*)(LCD_TRANSFER_FRAME_BUF + 2*index) = pixel;
+	index++;
+	if( index > (320*240 - 1) )
+		index=0;
+	return index;
+}
+
+uint32_t Graphic_Get_Tranfer_img(uint16_t* pixel, uint32_t index){
+	if( index > 320*240-1 )
+		return 0;
+	 *pixel = *(uint16_t*)(LCD_TRANSFER_FRAME_BUF + 2*index);
+	index++;
+	if( index > (320*240 - 1) )
+		index=0;
+	return index;
+}
+
+uint32_t Graphic_Load2screen(uint16_t pixel, uint32_t index){
+	if( index > 320*240-1 )
+		return 0;
+	*(uint16_t*)(LCD_CurrentFrameBuffer + 2*index) = pixel;
+	index++;
+	if( index > (320*240 - 1) )
+		index=0;
+	return index;
+}
+
+uint32_t Graphic_Get4screen(uint16_t* pixel, uint32_t index){
+	if( index > 320*240-1 )
+		return 0;
+	 *pixel = *(uint16_t*)(LCD_CurrentFrameBuffer + 2*index);
+	index++;
+	if( index > (320*240 - 1) )
+		index=0;
+	return index;
 }

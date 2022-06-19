@@ -38,6 +38,47 @@ void init_TIM1(){
 
 }
 
+void init_TIM2(){
+	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+	TIM2->ARR=450; //max CNT
+	TIM2->PSC=11-1; //weight CNT
+
+	TIM2->DIER |= TIM_DIER_UIE; //enable interruption
+
+	NVIC_SetPriority(TIM2_IRQn,4);
+	NVIC_EnableIRQ(TIM2_IRQn);
+
+	TIM2->CR1 |= TIM_CR1_CEN;
+}
+
+void init_TIM3(){
+	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
+	TIM3->ARR=20;
+	TIM3->PSC=36-1;
+
+	TIM3->DIER |= TIM_DIER_UIE; //enable interruption
+
+	NVIC_SetPriority(TIM3_IRQn,3);
+	NVIC_EnableIRQ(TIM3_IRQn);
+
+	TIMx_cmd(TIM3, ENABLE);
+	TIMx_cmd(TIM3, DISABLE);
+}
+
+void init_TIM4(){
+	RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
+	TIM4->ARR=200; //max CNT
+	TIM4->PSC=360-1; //weight CNT
+
+	TIM4->DIER |= TIM_DIER_UIE; //enable interruption
+
+	NVIC_SetPriority(TIM4_IRQn,3);
+	NVIC_EnableIRQ(TIM4_IRQn);
+
+	TIMx_cmd(TIM4, ENABLE);
+	TIMx_cmd(TIM4, DISABLE);
+}
+
 void init_TIM6(){
 	RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
 	TIM6->ARR = 2500;
@@ -68,6 +109,16 @@ void TIM1_cmd(uint8_t STATE){
 	if(STATE != 0)
 		TIM1->CR1 |= TIM_CR1_CEN;
 }
+void TIM2_cmd(uint8_t STATE){
+	TIM2->CR1 &= ~TIM_CR1_CEN;
+	if(STATE != 0)
+		TIM2->CR1 |= TIM_CR1_CEN;
+}
+void TIM3_cmd(uint8_t STATE){
+	TIM3->CR1 &= ~TIM_CR1_CEN;
+	if(STATE != 0)
+		TIM3->CR1 |= TIM_CR1_CEN;
+}
 void TIM6_cmd(uint8_t STATE){
 	TIM6->CR1 &= ~TIM_CR1_CEN;
 	if(STATE != 0)
@@ -81,6 +132,12 @@ void TIM7_cmd(uint8_t STATE){
 void TIM1_ARR(uint16_t ARR){
 	TIM1->ARR = ARR;
 }
+void TIM2_ARR(uint16_t ARR){
+	TIM2->ARR = ARR;
+}
+void TIM3_ARR(uint16_t ARR){
+	TIM3->ARR = ARR;
+}
 void TIM6_ARR(uint16_t ARR){
 	TIM6->ARR = ARR;
 }
@@ -90,9 +147,45 @@ void TIM7_ARR(uint16_t ARR){
 void TIM1_PSC(uint16_t PSC){
 	TIM1->PSC = PSC;
 }
+void TIM2_PSC(uint16_t PSC){
+	TIM2->PSC = PSC;
+}
+void TIM3_PSC(uint16_t PSC){
+	TIM3->PSC = PSC;
+}
 void TIM6_PSC(uint16_t PSC){
 	TIM6->PSC = PSC;
 }
 void TIM7_PSC(uint16_t PSC){
 	TIM7->PSC = PSC;
 }
+//void init_TIMx(TIM_TypeDef* TIMx);
+void TIMx_cmd(TIM_TypeDef* TIMx,uint8_t STATE){
+	TIMx->CR1 &= ~TIM_CR1_CEN;
+	if(STATE != 0)
+		TIMx->CR1 |= TIM_CR1_CEN;
+};
+
+void TIMx_ARR(TIM_TypeDef* TIMx, uint16_t ARR){
+	TIMx->ARR = ARR;
+};
+
+void TIMx_PSC(TIM_TypeDef* TIMx, uint16_t PSC){
+	TIMx->PSC = PSC;
+};
+
+//void init_TIMx(TIM_TypeDef* TIMx){
+//	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+//	//TIMx->CR1 |= TIM_CR1_OPM;
+//	//TIMx->CR1 |= TIM_CR1_CKD_1;
+//	TIMx->ARR=20000; //max CNT
+//	TIMx->PSC=9000-1; //weight CNT
+//
+//	TIMx->DIER |= TIM_DIER_UIE; //enable interruption
+//
+//	//NVIC_SetPriority(TIM _IRQn,4);
+//	//NVIC_EnableIRQ(TIM _IRQn);
+//
+//	TIMx->CR1 |= TIM_CR1_CEN;
+//
+//}

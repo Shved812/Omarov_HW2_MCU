@@ -1,4 +1,5 @@
 
+#include "Commander.h"
 
 #include "SPI5.h"
 #include "SDRAM.h"
@@ -6,10 +7,11 @@
 #include "Image.h"
 #include "Graphics_tools.h"
 #include "TIM.h"
-
+#include "CTrans.h"
 #define 	ENABLE		1
 #define 	DISABLE		0
 //#define 	N_buf		76800
+
 
 #define 	FramePos0_x_begin		25
 #define 	FramePos0_y_begin		60
@@ -34,6 +36,7 @@ uint8_t Current_status = 1;
 
 void TIM6_DAC_IRQHandler(){
 	TIM6->SR &= ~TIM_SR_UIF;
+	TIM6_cmd(DISABLE);
 	Pos_point++;
 	Count_clicks = 0;
 	switch (Pos_point){
@@ -59,7 +62,6 @@ void TIM6_DAC_IRQHandler(){
 		Graphic_DrawFrame(RGB_COL_WHITE,FramePos0_x_begin,FramePos0_y_begin,FramePos0_x_end,FramePos0_y_end);
 		break;
 	}
-	TIM6_cmd(DISABLE);
 }
 
 void EXTI0_IRQHandler(){
@@ -71,7 +73,9 @@ void EXTI0_IRQHandler(){
 		Count_clicks = 0;
 		Graphic_DrawImage(&Image_menu,0,0);
 		Graphic_DrawFrame(RGB_COL_WHITE,FramePos0_x_begin,FramePos0_y_begin,FramePos0_x_end,FramePos0_y_end);
-
+		Commander_cmd(DISABLE);
+		Buffer_clean(&Buf_out);
+		Buffer_clean(&Buf_in);
 	}
 	else
 	{
@@ -89,24 +93,28 @@ void EXTI0_IRQHandler(){
 				Graphic_DrawSavedImage();
 				Current_status = Pos_point+1;
 				Pos_point = 0;
+				Commander_cmd(ENABLE);
 				break;
 			case 1:
 				Graphic_DrawSavedImage();
 				Graphic_ConvertCurrentSquareImage2BW();
 				Current_status = Pos_point+1;
 				Pos_point = 0;
+				Commander_cmd(ENABLE);
 				break;
 			case 2:
 				Graphic_DrawSavedImage();
 				Graphic_FlipSquareImage();;
 				Current_status = Pos_point+1;
 				Pos_point = 0;
+				Commander_cmd(ENABLE);
 				break;
 			case 3:
 				LCD_FillLayer ( RGB_COL_BLACK ) ;
 				Graphic_DrawImage(&Image1,0,40);
 				Current_status = Pos_point+1;
 				Pos_point = 0;
+				Commander_cmd(ENABLE);
 				break;
 			}
 		}
@@ -140,6 +148,8 @@ void init_button(){
 	init_EXTI_PA0();
 }
 
+//void
+
 int main ( void )
 {
   uint32_t n;
@@ -157,15 +167,22 @@ int main ( void )
   LCD_FillLayer ( RGB_COL_BLACK ) ;
 
   Graphic_DrawImage(&Image1,0,40);
-  Graphic_ConvertCurrentSquareImage2BW();
+  //Graphic_ConvertCurrentSquareImage2BW();
 
   init_TIM6();
   TIM6_cmd(DISABLE);
   init_button();
 
+  init_gpio();
+  init_CTrans();
+
+  init_Commander();
+  Commander_cmd(ENABLE);
+
   while ( 1 )
   {
-
+	  for(int k=0; k<10000000; k++);
+	  Blink_Led4();
   }
 }
 
@@ -179,5 +196,5 @@ uint32_t sEE_TIMEOUT_UserCallback(void)
   }
 }
 
-//#define  LCD_MAXX           ((uint16_t)240)      // Pixel in X-Richtung
+//#define  LCD_MAXX           ((uint16_t)240)
 //#define  LCD_MAXY           ((uint16_t)320)
